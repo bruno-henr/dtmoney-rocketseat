@@ -1,31 +1,54 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { App } from './App'
-import { createServer } from 'miragejs'
-import { GlobalStyle } from './styles/global'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { App } from "./App";
+import { createServer, Model } from "miragejs";
+import { GlobalStyle } from "./styles/global";
 
 createServer({
-  routes() {
-    this.namespace = 'api';
+  models: {
+    transaction: Model
+  },
 
-    this.get('/transactions', () => {
-      return [
+  seeds(server) {
+    server.db.loadData({
+      transactions: [
         {
           id: 1,
-          title: 'Transaction 1',
-          amount: 400,
+          title: 'Freelance de website',
           type: 'deposit',
-          category: 'Food',
-          createdAt: new Date(),
+          category: 'Dev',
+          amount: 6000,
+          createAt: new Date(),
+        },
+        {
+          id: 2,
+          title: 'Aluguel',
+          type: 'withdraw',
+          category: 'Casa',
+          amount: 1100,
+          createAt: new Date(),
         }
-      ]
+      ],
     })
-  }
-})
+  },
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+  routes() {
+    this.namespace = "api";
+
+    this.get("/transactions", (schema) => {
+      return schema.db.transactions
+    });
+    this.post("/transactions", (schema, request) => {
+      const data = JSON.parse(request.requestBody);
+
+      return schema.create('transaction', data);
+    });
+  },
+});
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <GlobalStyle />
     <App />
   </React.StrictMode>
-)
+);
